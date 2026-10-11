@@ -1,0 +1,176 @@
+---
+import Polaroid from "./Polaroid.astro";
+import { contact, contactSection, flags, images, alt } from "../content/site";
+
+const telHref = `tel:${contact.phone.replace(/[^\d+]/g, "")}`;
+const { front, back } = contactSection;
+---
+
+<section class="contact night" id="contact" aria-labelledby="contact-title">
+  <div class="contact__grid container">
+    <div class="contact__text">
+      <h2 id="contact-title">{contactSection.title}</h2>
+      <p class="lead">{contactSection.lead}</p>
+
+      <ul class="reach" role="list">
+        <li class="reach__row">
+          <a class="reach__link" href={`mailto:${contact.email}`}>{contact.email}</a>
+          <button class="reach__copy" type="button" data-copy={contact.email} data-copied={contactSection.copied} aria-label={`${contactSection.copy} email address`} hidden>
+            {contactSection.copy}
+          </button>
+        </li>
+        <li class="reach__row">
+          <a class="reach__link" href={telHref}>{contact.phone}</a>
+          <button class="reach__copy" type="button" data-copy={contact.phone} data-copied={contactSection.copied} aria-label={`${contactSection.copy} phone number`} hidden>
+            {contactSection.copy}
+          </button>
+        </li>
+      </ul>
+
+      {
+        flags.showWhatsApp && (
+          <a class="button button--ghost contact__whatsapp" href={contact.whatsapp} rel="noopener">
+            {contactSection.whatsappLabel}
+          </a>
+        )
+      }
+      <p class="visually-hidden" aria-live="polite" data-copy-status></p>
+    </div>
+
+    <div class="contact__stack">
+      <div class="contact__back">
+        <Polaroid variant="empty" tilt={back.tilt} decorative />
+      </div>
+      <Polaroid
+        variant="mini"
+        image={images[front.photo.image]}
+        alt={alt[front.photo.image]}
+        focal={front.photo.focal}
+        zoom={front.photo.zoom}
+        caption={front.caption}
+        tilt={front.tilt}
+        class="contact__front"
+        frameSizes="280px"
+      />
+    </div>
+  </div>
+
+</section>
+
+<script>
+  import "../scripts/copy";
+</script>
+
+<style>
+  .contact {
+    padding-top: var(--section-pad);
+    margin-top: clamp(24px, 4vw, 48px);
+  }
+
+  .contact__grid {
+    display: grid;
+    gap: 48px;
+    padding-bottom: clamp(72px, 9vw, 120px);
+  }
+
+  .contact__text {
+    display: grid;
+    gap: 20px;
+    justify-items: start;
+  }
+
+  .contact__text .lead {
+    color: var(--on-night);
+    max-width: 36ch;
+  }
+
+  .reach {
+    display: grid;
+    gap: 14px;
+    margin: 18px 0 6px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .reach__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 14px;
+  }
+
+  .reach__link {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+    line-height: 1.5;
+    color: var(--polaroid);
+    text-decoration: underline;
+    text-decoration-color: var(--marigold);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    overflow-wrap: anywhere;
+    transition: color 160ms ease, text-decoration-color 160ms ease;
+  }
+
+  .reach__link:hover {
+    color: var(--marigold);
+  }
+
+  .reach__copy {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--on-night);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: rgba(241, 230, 210, .4);
+    text-underline-offset: 4px;
+    cursor: pointer;
+    transition: color 160ms ease;
+  }
+
+  .reach__copy:hover {
+    color: var(--marigold);
+  }
+
+  .reach__copy[hidden] {
+    display: none;
+  }
+
+  .contact__whatsapp {
+    margin-top: 8px;
+  }
+
+  .contact__stack {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .contact__grid {
+      grid-template-columns: 7fr 5fr;
+      align-items: center;
+    }
+
+    .contact__stack {
+      position: relative;
+      display: block;
+      justify-self: center;
+      width: 280px;
+      margin-top: -24px;
+    }
+
+    .contact__back {
+      position: absolute;
+      inset: 0;
+      transform: translate(48px, -20px);
+    }
+
+    .contact__stack :global(.contact__front) {
+      position: relative;
+    }
+  }
+</style>

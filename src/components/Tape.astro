@@ -1,0 +1,46 @@
+---
+/**
+ * A strip of translucent masking tape with torn ends.
+ * Use on at most three Polaroids on the whole page.
+ */
+import { wobble } from "../lib/sizes";
+
+interface Props {
+  position: "top" | "corner";
+  /** Seed for the slight "random" tilt, so it stays the same between builds. */
+  seed?: string;
+}
+
+const { position, seed = position } = Astro.props;
+const jitter = wobble(seed) * 4; // ±4°
+const tilt = position === "corner" ? 38 + jitter : jitter;
+---
+
+<span class:list={["tape", `tape--${position}`]} style={`--tape-tilt: ${tilt.toFixed(1)}deg`} aria-hidden="true"></span>
+
+<style>
+  .tape {
+    position: absolute;
+    z-index: 2;
+    width: 90px;
+    height: 28px;
+    background: rgba(241, 230, 210, .7);
+    clip-path: polygon(
+      0% 8%, 4% 0%, 96% 0%, 100% 10%, 97% 24%, 100% 38%, 96% 52%, 100% 66%, 97% 80%, 100% 92%,
+      96% 100%, 4% 100%, 0% 90%, 3% 76%, 0% 62%, 4% 48%, 0% 34%, 3% 20%
+    );
+    pointer-events: none;
+  }
+
+  .tape--top {
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%) rotate(var(--tape-tilt));
+  }
+
+  .tape--corner {
+    top: 6px;
+    right: -26px;
+    transform: rotate(var(--tape-tilt));
+  }
+</style>

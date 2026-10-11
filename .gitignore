@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+.DS_Store
+# Originals are large; the graded masters in src/assets/ are what the build needs.
+assets-src/*.JPG
+assets-src/*.jpg
+assets-src/*.CR2
+assets-src/*.cr2
+# Local tooling
+.claude/

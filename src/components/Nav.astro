@@ -1,0 +1,108 @@
+---
+import { nav } from "../content/site";
+---
+
+<header class="nav" data-nav>
+  <div class="nav__bar">
+    <div class="nav__inner">
+      <a class="wordmark" href="#top">
+        {nav.wordmark}<span class="wordmark__doodle" aria-hidden="true">{nav.doodle}</span>
+      </a>
+      <a class="button button--small nav__cta" href="#contact">{nav.cta}</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Transparent over the hero, linen once the hero has scrolled away.
+  const header = document.querySelector<HTMLElement>("[data-nav]");
+  const hero = document.querySelector<HTMLElement>("#top");
+  if (header && hero) {
+    // Nav height from tokens.css: 64px from 900px up, 56px below.
+    const wide = matchMedia("(min-width: 900px)");
+    let observer: IntersectionObserver;
+    const watch = () => {
+      observer?.disconnect();
+      observer = new IntersectionObserver(
+        ([entry]) => header.classList.toggle("is-solid", !entry.isIntersecting),
+        { rootMargin: `-${wide.matches ? 64 : 56}px 0px 0px 0px` },
+      );
+      observer.observe(hero);
+    };
+    watch();
+    wide.addEventListener("change", watch);
+  }
+</script>
+
+<style>
+  /*
+   * Sticky with a negative top: at the top of the page the bar sits inside the hero
+   * card (below its inset); once you scroll, it sticks flush to the viewport edge.
+   */
+  .nav {
+    position: sticky;
+    top: calc(-1 * var(--hero-inset));
+    z-index: 50;
+    padding-top: var(--hero-inset);
+    margin-bottom: calc(-1 * (var(--nav-h) + var(--hero-inset)));
+    pointer-events: none;
+  }
+
+  .nav__bar {
+    height: var(--nav-h);
+    background: rgba(241, 230, 210, .92);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--ink);
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: min(var(--container), 100% - 2 * var(--gutter));
+    height: 100%;
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+
+  /* With JS: clear glass over the hero. Without JS it simply stays linen. */
+  :global(.js) .nav:not(.is-solid) .nav__bar {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    color: var(--polaroid);
+    text-shadow: 0 1px 10px rgba(46, 33, 24, .35);
+  }
+
+  .wordmark {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-right: 34px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .wordmark__doodle {
+    position: absolute;
+    right: 0;
+    top: 3px;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--marigold);
+    text-shadow: none;
+    transform: rotate(-12deg);
+  }
+
+  .nav__cta {
+    text-shadow: none;
+  }
+</style>

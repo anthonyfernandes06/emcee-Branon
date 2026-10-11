@@ -1,0 +1,234 @@
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--paper);
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Paper grain: fixed, barely there, never in the way. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 220px 220px;
+  opacity: .045;
+  mix-blend-mode: multiply;
+}
+
+img,
+picture,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.08;
+  letter-spacing: -0.005em;
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.15;
+}
+
+p {
+  margin: 0;
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--marigold);
+  outline-offset: 3px;
+}
+
+.container {
+  width: min(var(--container), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: var(--section-pad);
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+}
+
+.section-head {
+  display: grid;
+  gap: 14px;
+  margin-bottom: clamp(36px, 5vw, 64px);
+}
+
+.section-head .lead {
+  color: var(--ink-soft);
+  max-width: 34ch;
+}
+
+.hand {
+  font-family: var(--font-hand);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Buttons: pill, colour change only on hover. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 26px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--marigold);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.button:hover {
+  background: var(--marigold-deep);
+}
+
+.button--small {
+  min-height: 44px;
+  padding: 8px 20px;
+  font-size: 0.9375rem;
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--on-night);
+  box-shadow: inset 0 0 0 2px rgba(241, 230, 210, .55);
+}
+
+.button--ghost:hover {
+  background: rgba(241, 230, 210, .1);
+  color: var(--polaroid);
+}
+
+/* Night surface (contact + footer): lights down, party on. */
+.night {
+  position: relative;
+  isolation: isolate;
+  background: var(--night);
+  color: var(--on-night);
+}
+
+/* Multiply grain disappears on espresso, so the night gets its own light speckle. */
+.night::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 220px 220px;
+  opacity: .1;
+  filter: invert(1);
+  mix-blend-mode: soft-light;
+}
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 12px 18px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--polaroid);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

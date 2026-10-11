@@ -1,0 +1,26 @@
+{
+  "name": "branon-host",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "images": "node scripts/prepare-images.mjs",
+    "dev": "astro dev",
+    "build": "node scripts/prepare-images.mjs && astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@fontsource/hind": "^5.3.0",
+    "@fontsource/kalam": "^5.3.0",
+    "@fontsource/young-serif": "^5.3.0",
+    "astro": "^7.3.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^24.19.1",
+    "opentype.js": "^2.0.0",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.3"
+  }
+}

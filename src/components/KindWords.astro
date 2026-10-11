@@ -1,0 +1,189 @@
+---
+import Polaroid from "./Polaroid.astro";
+import { kindWords, images, alt } from "../content/site";
+
+/** Quotes past ~28 words get a smaller size so they still sit inside the print. */
+const isLong = (quote: string | null) => (quote?.split(/\s+/).length ?? 0) > 28;
+---
+
+<section class="kind section" aria-labelledby="kind-title">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="kind-title">{kindWords.title}</h2>
+      <p class="lead">{kindWords.lead}</p>
+    </div>
+  </div>
+
+  <div class="kind__scroller" tabindex="0" role="region" aria-label="Testimonials" data-kind-scroller>
+    <ul class="kind__row" role="list">
+      {
+        kindWords.items.map((item) => (
+          <li class="kind__item" style={`--offset: ${item.offset}px`} data-kind-card>
+            {item.photo ? (
+              <>
+                <Polaroid
+                  variant="mini"
+                  image={images[item.photo.image]}
+                  alt={alt[item.photo.image]}
+                  focal={item.photo.focal}
+                  zoom={item.photo.zoom}
+                  caption={item.name}
+                  tilt={item.tilt}
+                  tape={item.tape ?? null}
+                  frameSizes="(min-width: 900px) 300px, 70vw"
+                />
+                <blockquote class={item.quote ? "kind__below" : "kind__below is-placeholder"}>
+                  <p>{item.quote ?? item.placeholder}</p>
+                </blockquote>
+              </>
+            ) : (
+              <Polaroid variant="note" caption={item.name} tilt={item.tilt} tape={item.tape ?? null}>
+                <blockquote class:list={["kind__quote", { "is-placeholder": !item.quote, "is-long": isLong(item.quote) }]}>
+                  <p>{item.quote ?? item.placeholder}</p>
+                </blockquote>
+              </Polaroid>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="kind__dots container" aria-hidden="true">
+    {kindWords.items.map((_, i) => <span class:list={["kind__dot", { "is-active": i === 0 }]}></span>)}
+  </div>
+</section>
+
+<script>
+  // Phone carousel: dots follow the scroll position.
+  const scroller = document.querySelector<HTMLElement>("[data-kind-scroller]");
+  const dots = document.querySelectorAll<HTMLElement>(".kind__dot");
+  if (scroller && dots.length) {
+    const cards = scroller.querySelectorAll<HTMLElement>("[data-kind-card]");
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const max = scroller.scrollWidth - scroller.clientWidth;
+      const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 1;
+      const index = scroller.scrollLeft >= max - 2 ? cards.length - 1 : Math.round(scroller.scrollLeft / step);
+      dots.forEach((dot, i) => dot.classList.toggle("is-active", i === index));
+      // Only a scrollable row needs to be a keyboard stop.
+      if (max > 0) scroller.setAttribute("tabindex", "0");
+      else scroller.removeAttribute("tabindex");
+    };
+    scroller.addEventListener("scroll", () => (frame ||= requestAnimationFrame(update)), { passive: true });
+    addEventListener("resize", () => (frame ||= requestAnimationFrame(update)));
+    frame = requestAnimationFrame(update);
+  }
+</script>
+
+<style>
+  .kind__scroller {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .kind__scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kind__scroller:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .kind__row {
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    padding: 28px var(--gutter) 36px;
+    list-style: none;
+    width: max-content;
+  }
+
+  .kind__item {
+    flex: none;
+    width: 82vw;
+    max-width: 420px;
+    scroll-snap-align: start;
+  }
+
+  .kind__quote,
+  .kind__below {
+    margin: 0;
+  }
+
+  /* Real quotes run up to ~25 words, so the window gets a slimmer margin than the "?" card. */
+  .kind__item :global(.polaroid__note) {
+    padding: 7%;
+  }
+
+  .kind__quote p {
+    font-family: var(--font-display);
+    font-size: clamp(1.1875rem, 7.4cqi, 1.375rem);
+    line-height: 1.25;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+
+  .kind__quote.is-long p {
+    font-size: clamp(1.0625rem, 6.6cqi, 1.25rem);
+    line-height: 1.22;
+  }
+
+  .kind__below p {
+    margin-top: 20px;
+    font-size: var(--fs-body);
+  }
+
+  .is-placeholder p {
+    color: var(--ink-soft);
+  }
+
+  .kind__dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .kind__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(46, 33, 24, .22);
+    transition: background-color 200ms ease;
+  }
+
+  .kind__dot.is-active {
+    background: var(--ink-soft);
+  }
+
+  @media (min-width: 900px) {
+    .kind__scroller {
+      overflow: visible;
+    }
+
+    .kind__row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      /* Tighter at 900–1100px so the three cards stay wide enough for their quotes. */
+      gap: clamp(20px, 6vw - 30px, 56px);
+      width: min(var(--container), 100% - 2 * var(--gutter));
+      margin-inline: auto;
+      padding: 8px 0 32px;
+      align-items: start;
+    }
+
+    .kind__item {
+      width: 100%;
+      max-width: 340px;
+      margin-top: var(--offset);
+      justify-self: center;
+    }
+
+    .kind__dots {
+      display: none;
+    }
+  }
+</style>

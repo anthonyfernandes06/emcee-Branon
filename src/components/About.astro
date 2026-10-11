@@ -1,0 +1,91 @@
+---
+import Polaroid from "./Polaroid.astro";
+import { about, images, alt } from "../content/site";
+
+const { photo, caption, tilt } = about.polaroid;
+---
+
+<section class="about section" aria-labelledby="about-title">
+  <div class="about__grid container">
+    <div class="about__photo">
+      <Polaroid
+        variant="mini"
+        image={images[photo.image]}
+        alt={alt[photo.image]}
+        focal={photo.focal}
+        zoom={photo.zoom}
+        caption={caption}
+        tilt={tilt}
+        tape="top"
+        frameSizes="(min-width: 900px) 340px, 78vw"
+      />
+    </div>
+
+    <div class="about__text">
+      <h2 id="about-title">{about.title}</h2>
+      <p>{about.body}</p>
+      <ul class="stickers" role="list">
+        {about.stickers.map((s) => <li class="sticker" style={`--tilt: ${s.tilt}deg`}>{s.text}</li>)}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__grid {
+    display: grid;
+    gap: clamp(48px, 7vw, 72px);
+  }
+
+  .about__photo {
+    width: 78%;
+    max-width: 340px;
+    justify-self: center;
+  }
+
+  .about__text {
+    display: grid;
+    gap: 22px;
+    align-content: center;
+  }
+
+  .about__text p {
+    font-size: clamp(1.1875rem, 1.6vw, var(--fs-lead));
+    line-height: 1.55;
+    max-width: 36ch;
+  }
+
+  .stickers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 12px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sticker {
+    padding: 6px 14px;
+    border-radius: var(--r-polaroid);
+    background: var(--polaroid);
+    box-shadow: var(--shadow-polaroid-half);
+    font-family: var(--font-hand);
+    font-size: 1.125rem;
+    line-height: 1.35;
+    color: var(--ink);
+    transform: rotate(var(--tilt));
+  }
+
+  @media (min-width: 900px) {
+    .about__grid {
+      grid-template-columns: 5fr 7fr;
+      align-items: center;
+    }
+
+    .about__photo {
+      width: 340px;
+      justify-self: start;
+      margin-top: -12px;
+    }
+  }
+</style>

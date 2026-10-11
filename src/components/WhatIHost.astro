@@ -1,0 +1,164 @@
+---
+import Polaroid from "./Polaroid.astro";
+import { whatIHost, images, alt } from "../content/site";
+---
+
+<section class="host section" aria-labelledby="host-title">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="host-title">{whatIHost.title}</h2>
+      <p class="lead">{whatIHost.lead}</p>
+    </div>
+
+    <ul class="host__row" role="list">
+      {
+        whatIHost.cards.map((card) => (
+          <li class="host__card">
+            {card.variant === "note" ? (
+              <Polaroid variant="note" caption={card.caption} tilt={card.tilt} tone="paper">
+                <span class="host__mark" aria-hidden="true" data-mark={card.mark} />
+              </Polaroid>
+            ) : card.variant === "mini" && card.photo ? (
+              <Polaroid
+                variant="mini"
+                image={images[card.photo.image]}
+                alt={alt[card.photo.image]}
+                focal={card.photo.focal}
+                zoom={card.photo.zoom}
+                caption={card.caption}
+                tilt={card.tilt}
+                frameSizes="(min-width: 900px) 240px, calc(50vw - 36px)"
+              />
+            ) : (
+              <Polaroid variant="empty" caption={card.caption} tilt={card.tilt} />
+            )}
+            <div class="host__text">
+              <h3>{card.title}</h3>
+              <p>{card.line}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <dl class="details">
+      {
+        whatIHost.details.map((d) => (
+          <div class="details__item">
+            <dt>{d.term}</dt>
+            <dd>{d.detail}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .host__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Subgrid keeps the titles level even though the note card is shorter. */
+  .host__card {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: 22px;
+    align-items: start;
+  }
+
+  .host__card > :global(.polaroid) {
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .host__text {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 40px;
+  }
+
+  .host__text h3 {
+    font-size: 1.375rem;
+    line-height: 1.2;
+  }
+
+  .host__text p {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .host__mark::before {
+    content: attr(data-mark);
+  }
+
+  .host__mark {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 62cqi;
+    line-height: 1;
+    color: var(--marigold);
+    transform: rotate(6deg);
+  }
+
+  .details {
+    display: grid;
+    gap: 24px;
+    margin: clamp(56px, 8vw, 96px) 0 0;
+    padding-top: 28px;
+    border-top: 1px solid rgba(46, 33, 24, .15);
+  }
+
+  .details__item {
+    display: grid;
+    gap: 4px;
+  }
+
+  .details dt {
+    font-family: var(--font-hand);
+    font-size: 1.25rem;
+    color: var(--ink-soft);
+  }
+
+  .details dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.3;
+    color: var(--ink);
+    max-width: 24ch;
+  }
+
+  @media (min-width: 600px) {
+    .host__row {
+      column-gap: 32px;
+    }
+
+    .host__text p {
+      font-size: var(--fs-body);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .host__row {
+      grid-template-columns: repeat(4, minmax(0, 240px));
+      justify-content: space-between;
+      column-gap: 32px;
+    }
+
+    .details {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px;
+    }
+  }
+</style>
