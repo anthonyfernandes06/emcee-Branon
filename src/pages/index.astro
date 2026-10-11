@@ -21,9 +21,11 @@ import Contact from "../components/Contact.astro";
 
 import { meta, contact, isPlaceholder, serviceArea, languages, footer } from "../content/site";
 import { heroSources, DESKTOP_MEDIA, MOBILE_MEDIA } from "../lib/hero";
+import { withBase } from "../lib/paths";
 
 const site = Astro.site;
-const absolute = (path: string) => (site ? new URL(path, site).href : path);
+const absolute = (path: string) => (site ? new URL(withBase(path), site).href : withBase(path));
+const home = site ? absolute("/") : undefined;
 const { desktop, mobile } = await heroSources();
 
 const person = {
@@ -34,7 +36,7 @@ const person = {
   description: meta.description,
   knowsLanguage: languages,
   areaServed: serviceArea.map((name) => ({ "@type": "City", name })),
-  ...(site ? { url: site.href, image: absolute(meta.ogImage) } : {}),
+  ...(home ? { url: home, image: absolute(meta.ogImage) } : {}),
   // Contact details stay out until the placeholders in site.ts are filled.
   ...(isPlaceholder(contact.email) ? {} : { email: `mailto:${contact.email}` }),
   ...(isPlaceholder(contact.phone) ? {} : { telephone: contact.phone.replace(/\s+/g, "") }),
@@ -49,9 +51,9 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{meta.title}</title>
     <meta name="description" content={meta.description} />
-    {site && <link rel="canonical" href={site.href} />}
+    {home && <link rel="canonical" href={home} />}
     <meta name="theme-color" content="#F1E6D2" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={meta.title} />
@@ -61,7 +63,7 @@ const year = new Date().getFullYear();
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Branon on the mic, with the words: Your friendly neighbourhood Mangalorean host." />
     <meta property="og:locale" content="en_IN" />
-    {site && <meta property="og:url" content={site.href} />}
+    {home && <meta property="og:url" content={home} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={meta.title} />
     <meta name="twitter:description" content={meta.description} />

@@ -2,6 +2,7 @@
 import HandArrow from "./HandArrow.astro";
 import { hero, alt } from "../content/site";
 import { heroSources, DESKTOP_MEDIA, MOBILE_MEDIA } from "../lib/hero";
+import { withBase } from "../lib/paths";
 
 const { desktop, mobile, poster } = await heroSources();
 const altText = alt[hero.photo.image] ?? "";
@@ -36,7 +37,7 @@ const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
       {
         hero.heroVideo && (
           <video class="hero__video" autoplay muted loop playsinline preload="metadata" poster={poster} aria-hidden="true" data-hero-video>
-            <source src={hero.heroVideo} type="video/mp4" media="(prefers-reduced-motion: no-preference)" />
+            <source src={withBase(hero.heroVideo)} type="video/mp4" media="(prefers-reduced-motion: no-preference)" />
           </video>
         )
       }

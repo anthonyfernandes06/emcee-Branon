@@ -39,8 +39,25 @@ To fill the wedding or anniversary card, change its `variant` from `"empty"` to 
 
 Each slot takes `focal` (CSS object-position) and an optional `zoom` that crops in around it.
 
-## Deploying (Vercel)
+## Deploying
 
-Vercel detects Astro; no `vercel.json` is needed. The originals in `assets-src/` are git-ignored
-(they're large), so commit the graded masters in `src/assets/`. The build reuses them when the
-originals aren't there.
+**GitHub Pages.** Run:
+
+```bash
+npm run deploy
+```
+
+It builds the site for `https://<owner>.github.io/<repo>/` and pushes it to the `gh-pages`
+branch. One-time setup in the repo: Settings → Pages → Build and deployment → Source:
+**Deploy from a branch**, Branch: **gh-pages**, folder **/ (root)**. Commit and push `main`
+as usual so the source on GitHub matches what's live.
+
+(Deploying automatically on every push needs a GitHub Actions workflow, and pushing a workflow
+file needs a git token with the `workflow` scope.)
+
+**Vercel (alternative).** Import the repo; Vercel detects Astro and no `vercel.json` is needed.
+
+Either way, the originals in `assets-src/` are git-ignored (they're large and still carry
+camera/GPS metadata). The build reuses the graded masters committed in `src/assets/`.
+
+If Branon gets his own domain, set `meta.siteUrl` in `site.ts`; the site is then served from the root.

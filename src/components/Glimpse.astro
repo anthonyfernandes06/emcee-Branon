@@ -7,6 +7,7 @@ import { Picture, getImage } from "astro:assets";
 import Polaroid from "./Polaroid.astro";
 import { glimpse, images, alt, type Tile } from "../content/site";
 import { coverFactor } from "../lib/sizes";
+import { withBase } from "../lib/paths";
 
 const WIDTHS = [480, 800, 1200, 1600, 2000];
 
@@ -113,9 +114,9 @@ const tiles = await Promise.all(
               <a
                 class={`tile tile--photo tile--video tile--${tile.area}`}
                 style={`${style}; --focal: ${tile.poster.focal ?? "50% 50%"}`}
-                href={tile.src}
+                href={withBase(tile.src)}
                 data-lightbox
-                data-video={tile.src}
+                data-video={withBase(tile.src)}
                 aria-label={tile.label}
               >
                 <Picture
