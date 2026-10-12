@@ -33,6 +33,7 @@ export const alt: Record<string, string> = {
   "anniversary-dance": "Branon dancing with his mic held high as guests at a 25th anniversary dance around him.",
   "engagement-shades": "Branon grinning in novelty sunglasses that read R+A, 2013 to 2023, flashing peace signs.",
   "engagement-laugh": "Branon laughing with a mic in hand at an engagement party, in a blue floral jacket.",
+  "wedding-crew": "Branon in RA novelty sunglasses, posing with a crowd of laughing guests in festive outfits under chandeliers.",
 };
 
 /**
@@ -65,8 +66,8 @@ export const contact = {
 /** True while a contact value is still a placeholder (kept out of the JSON-LD). */
 export const isPlaceholder = (value: string) => /\[|X{3,}/.test(value);
 
-// TODO: confirm service area. Default is pending; it may become ["Mumbai"] only.
-export const serviceArea = ["Mumbai", "Thane", "Pune"];
+// Flows into the hero sub-line, the "Where" detail, meta description and JSON-LD.
+export const serviceArea = ["Mumbai", "Thane"];
 
 export const languages = ["English", "Hindi", "Konkani"];
 
@@ -120,7 +121,7 @@ export const hero = {
 
 export const about = {
   title: "Hi, I'm Branon.",
-  body: "Monday to Friday, I'm a data analyst at EY: a proud corporate majdoor. On weekends, I'm the guy with the mic at your party. I've run an event company, I love to dance, and I'm Mangalorean, so feeding people and making them laugh is basically in the blood.",
+  body: "Monday to Friday, I'm a Forensic Auditor at EY: a proud corporate majdoor. On weekends, I'm the guy with the mic at your party. I've run an event company, I love to dance, and I'm Mangalorean, so feeding people and making them laugh is basically in the blood.",
   polaroid: {
     photo: { image: "engagement-shades", focal: "51% 50%" } as Photo,
     caption: "wearing the couple's merch, obviously.",
@@ -128,7 +129,7 @@ export const about = {
   },
   stickers: [
     { text: "Ran an event company", tilt: -3 },
-    { text: "Data analyst at EY (Mon to Fri)", tilt: 2.5 },
+    { text: "Forensic Auditor at EY (Mon to Fri)", tilt: 2.5 },
     { text: "Will dance. Will make you dance.", tilt: -1.5 },
     { text: "Speaks English, Hindi and Konkani", tilt: 3.5 },
   ],
@@ -270,8 +271,9 @@ export const whatIHost = {
   cards: [
     {
       title: "Weddings",
-      variant: "empty",
-      caption: "This could be your wedding.",
+      variant: "mini",
+      photo: { image: "wedding-crew", focal: "55% 50%" },
+      caption: "Nobody gets left out.",
       line: "From the first entry to the last dance.",
       tilt: -2,
     },

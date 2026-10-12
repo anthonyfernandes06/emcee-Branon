@@ -66,6 +66,8 @@ const SOURCES = [
   { file: "Emcee_Material_IMG_3430.CR2", name: "anniversary-dance", violet: false },
   { file: "Emcee_Material_Oct_6_2023_(1).jpg", name: "engagement-shades", violet: false },
   { file: "Emcee_Material_Oct_6_2023.jpg", name: "engagement-laugh", violet: false },
+  // Added 2026-10-12: group shot for the Weddings card.
+  { file: "IMG_Oct_3_2023.jpg", name: "wedding-crew", violet: false },
 ];
 
 /* ------------------------------------------------------------------ grade */
