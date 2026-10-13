@@ -1,20 +1,49 @@
 ---
 import HandArrow from "./HandArrow.astro";
-import { hero, alt } from "../content/site";
+import { hero, alt, images, type NotePlacement } from "../content/site";
 import { heroSources, DESKTOP_MEDIA, MOBILE_MEDIA } from "../lib/hero";
 import { withBase } from "../lib/paths";
 
 const { desktop, mobile, poster } = await heroSources();
 const altText = alt[hero.photo.image] ?? "";
 const focalMobile = (hero.photoMobile ?? hero.photo).focal ?? "50% 30%";
-const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
+
+/** CSS variables that place the note and aim its arrow for one breakpoint (m or d). */
+function noteVars(bp: string, { x, y, arrow }: NotePlacement) {
+  const up = arrow.startsWith("up");
+  const right = arrow.endsWith("right");
+  return [
+    `--n-${bp}-x: ${x}`,
+    `--n-${bp}-y: ${y}`,
+    // The arrow is drawn tail bottom-left, tip top-right; flip it to face the other ways.
+    `--a-${bp}-top: ${up ? "auto" : "calc(100% + 2px)"}`,
+    `--a-${bp}-bottom: ${up ? "calc(100% + 2px)" : "auto"}`,
+    `--a-${bp}-left: ${right ? (up ? "38%" : "48%") : "auto"}`,
+    `--a-${bp}-right: ${right ? "auto" : up ? "38%" : "52%"}`,
+    `--a-${bp}-transform: ${up ? (right ? "rotate(4deg)" : "scaleX(-1) rotate(4deg)") : right ? "scaleY(-1)" : "rotate(180deg)"}`,
+  ].join("; ");
+}
+
+/** The photo's shape and focal point, so the note's frame can match object-fit: cover exactly. */
+function frameVars(bp: string, key: string, focal = "50% 50%") {
+  const img = images[key];
+  const [fx, fy = "50%"] = focal.split(/\s+/);
+  return [`--ratio-${bp}: ${img.width} / ${img.height}`, `--fx-${bp}: ${fx}`, `--fy-${bp}: ${fy}`].join("; ");
+}
+
+const mobilePhoto = hero.photoMobile ?? hero.photo;
+const cardStyle = [
+  `--focal-d: ${hero.photo.focal ?? "50% 30%"}`,
+  `--focal-m: ${focalMobile}`,
+  frameVars("d", hero.photo.image, hero.photo.focal),
+  frameVars("m", mobilePhoto.image, mobilePhoto.focal),
+  noteVars("d", hero.notePosition.desktop),
+  noteVars("m", hero.notePosition.mobile),
+].join("; ");
 ---
 
 <section class="hero" id="top" aria-labelledby="hero-title">
-  <div
-    class="hero__card"
-    style={`--focal-d: ${hero.photo.focal ?? "50% 30%"}; --focal-m: ${focalMobile}; --note-d-left: ${noteD.left}; --note-d-top: ${noteD.top}; --note-t-right: ${noteT.right}; --note-t-top: ${noteT.top}; --note-m-right: ${noteM.right}; --note-m-top: ${noteM.top}`}
-  >
+  <div class:list={["hero__card", `hero__card--text-${hero.textSide}`]} style={cardStyle}>
     <div class="hero__media">
       <picture>
         {mobile && <source media={MOBILE_MEDIA} type="image/avif" srcset={mobile.avif} sizes={mobile.sizes} />}
@@ -44,10 +73,13 @@ const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
     </div>
     <div class="hero__scrim" aria-hidden="true"></div>
 
-    <p class="hero__note">
-      {hero.note}
-      <HandArrow class="hero__arrow" />
-    </p>
+    <!-- Same size and position as the photo under object-fit: cover, so the note can be placed on the photo. -->
+    <div class="hero__frame" aria-hidden="true">
+      <p class="hero__note">
+        {hero.note}
+        <HandArrow class="hero__arrow" />
+      </p>
+    </div>
 
     <div class="hero__content">
       <div class="hero__text">
@@ -161,12 +193,28 @@ const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
     width: 100%;
   }
 
-  /* Handwritten note: top right on phones, the arrow pointing down-left at his head. */
+  /*
+   * The note's frame: the photo's own box. With the photo's aspect ratio and min 100% of
+   * the card both ways it is exactly the object-fit: cover box; left/top + translate apply
+   * the same focal point as object-position. The note is placed in % of this frame.
+   */
+  .hero__frame {
+    position: absolute;
+    left: var(--fx-m);
+    top: var(--fy-m);
+    z-index: 1;
+    min-width: 100%;
+    min-height: 100%;
+    aspect-ratio: var(--ratio-m);
+    transform: translate(calc(-1 * var(--fx-m)), calc(-1 * var(--fy-m)));
+    container-type: inline-size;
+    pointer-events: none;
+  }
+
   .hero__note {
     position: absolute;
-    top: var(--note-m-top);
-    right: var(--note-m-right);
-    z-index: 1;
+    left: var(--n-m-x);
+    top: var(--n-m-y);
     width: max-content;
     max-width: 8.5em;
     margin: 0;
@@ -188,24 +236,22 @@ const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
     pointer-events: none;
   }
 
+  /* The arrow scales with the photo, so its tip lands in the same spot at every size. */
   .hero__note :global(.hero__arrow) {
     --arrow-stroke: 6;
     position: absolute;
-    top: calc(100% + 2px);
-    right: 52%;
-    width: 64px;
+    top: var(--a-m-top);
+    bottom: var(--a-m-bottom);
+    left: var(--a-m-left);
+    right: var(--a-m-right);
+    width: 13cqw;
     height: auto;
-    transform: rotate(180deg);
+    transform: var(--a-m-transform);
   }
 
   @media (min-width: 600px) and (max-width: 899px) {
     .hero__text {
       max-width: 34rem;
-    }
-
-    .hero__note {
-      top: var(--note-t-top);
-      right: var(--note-t-right);
     }
 
     .hero__cta {
@@ -219,12 +265,18 @@ const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
       object-position: var(--focal-d);
     }
 
-    /* The brief's side scrim, held a little firmer through the text column so the
-       bright wall between the curtains can't wash out the sub-line. */
+    /* The brief's side scrim, darkest behind the headline and clear by the time it reaches
+       Branon. Firmer through the text column so a bright background can't wash out the sub-line. */
     .hero__scrim {
       background:
         linear-gradient(to bottom, rgba(46, 33, 24, .42) 0, transparent 140px),
         linear-gradient(to left, rgba(46, 33, 24, .8) 0%, rgba(46, 33, 24, .62) 42%, rgba(46, 33, 24, .28) 55%, transparent 68%);
+    }
+
+    .hero__card--text-left .hero__scrim {
+      background:
+        linear-gradient(to bottom, rgba(46, 33, 24, .42) 0, transparent 140px),
+        linear-gradient(to right, rgba(46, 33, 24, .8) 0%, rgba(46, 33, 24, .62) 36%, rgba(46, 33, 24, .25) 50%, transparent 60%);
     }
 
     .hero__content {
@@ -236,31 +288,42 @@ const { desktop: noteD, tablet: noteT, mobile: noteM } = hero.notePosition;
       content: none;
     }
 
+    /* Never wider than ~44% of the card, so it stays clear of Branon on narrow desktops. */
     .hero__text {
-      max-width: 30rem;
+      max-width: min(30rem, 44%);
       margin-left: auto;
+    }
+
+    .hero__card--text-left .hero__text {
+      margin-left: 0;
+      margin-right: auto;
     }
 
     .hero__cta {
       width: auto;
     }
 
-    /* Upper left, beside his face; the arrow flicks up and right at his head. */
+    .hero__frame {
+      left: var(--fx-d);
+      top: var(--fy-d);
+      aspect-ratio: var(--ratio-d);
+      transform: translate(calc(-1 * var(--fx-d)), calc(-1 * var(--fy-d)));
+    }
+
     .hero__note {
-      top: var(--note-d-top);
-      left: var(--note-d-left);
-      right: auto;
+      left: var(--n-d-x);
+      top: var(--n-d-y);
       max-width: 7.5em;
     }
 
     .hero__note :global(.hero__arrow) {
       --arrow-stroke: 4.2;
-      top: auto;
-      right: auto;
-      bottom: calc(100% + 2px);
-      left: 38%;
-      width: 96px;
-      transform: rotate(4deg);
+      top: var(--a-d-top);
+      bottom: var(--a-d-bottom);
+      left: var(--a-d-left);
+      right: var(--a-d-right);
+      width: 7.5cqw;
+      transform: var(--a-d-transform);
     }
   }
 </style>

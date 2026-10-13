@@ -68,7 +68,25 @@ const SOURCES = [
   { file: "Emcee_Material_Oct_6_2023.jpg", name: "engagement-laugh", violet: false },
   // Added 2026-10-12: group shot for the Weddings card.
   { file: "IMG_Oct_3_2023.jpg", name: "wedding-crew", violet: false },
+  // Added 2026-10-13: the hero. Branon stands centre-right facing left, so the text goes on
+  // the left; the right edge is trimmed to keep his mic hand clear of the headline.
+  {
+    file: "Hero_Image.png",
+    name: "hero-branon-engagement",
+    crop: { left: 0, top: 0.04, width: 0.8, height: 0.96 },
+    violet: false,
+  },
+  {
+    // Portrait crop for phones and tablets.
+    file: "Hero_Image.png",
+    name: "hero-branon-engagement-tall",
+    crop: { left: 0.3, top: 0.12, width: 0.46, height: 0.88 },
+    violet: false,
+  },
 ];
+
+/** The social card (public/og.jpg): which master, and which side the headline sits on. */
+const OG = { image: "hero-branon-engagement", textSide: "left", position: "north" };
 
 /* ------------------------------------------------------------------ grade */
 
@@ -153,6 +171,7 @@ async function oriented(file) {
 async function orientedPixels(file) {
   const { data, info } = await sharp(file, { failOn: "none" })
     .rotate() // auto-orient from EXIF
+    .removeAlpha() // PNG exports can carry an (opaque) alpha channel
     .toColourspace("srgb")
     .raw()
     .toBuffer({ resolveWithObject: true });
@@ -262,15 +281,14 @@ async function contactSheet(rows) {
 async function ogImage() {
   const W = 1200;
   const H = 630;
-  const hero = join(OUT_DIR, "hero-branon-mic.jpg");
-  // The hero master already puts Branon in the left third; the text takes the curtains.
-  const photo = await sharp(hero).resize({ width: W, height: H, fit: "cover", position: "centre" }).toBuffer();
+  const hero = join(OUT_DIR, `${OG.image}.jpg`);
+  const photo = await sharp(hero).resize({ width: W, height: H, fit: "cover", position: OG.position }).toBuffer();
 
   const fontPath = join(ROOT, "node_modules/@fontsource/young-serif/files/young-serif-latin-400-normal.woff");
   const fontBuf = readFileSync(fontPath);
   const font = opentype.parse(fontBuf.buffer.slice(fontBuf.byteOffset, fontBuf.byteOffset + fontBuf.byteLength));
   const lines = ["Your friendly", "neighbourhood", "Mangalorean host."];
-  const size = 56;
+  const size = OG.textSide === "left" ? 50 : 56;
   const lineHeight = size * 1.08;
   const scale = size / font.unitsPerEm;
 
@@ -304,8 +322,9 @@ async function ogImage() {
     return { placed, width: advance };
   });
   const blockWidth = Math.max(...laidOut.map((l) => l.width));
-  const x = W - 72 - blockWidth;
-  const startY = H - 92 - lineHeight * (lines.length - 1);
+  const x = OG.textSide === "left" ? 64 : W - 72 - blockWidth;
+  // Left-hand text sits high, clear of the mic; right-hand text sits low over the curtains.
+  const startY = OG.textSide === "left" ? 190 : H - 92 - lineHeight * (lines.length - 1);
   const glyphPaths = [];
   laidOut.forEach(({ placed }, i) => {
     for (const { glyph, at } of placed) {
@@ -316,7 +335,7 @@ async function ogImage() {
 
   const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <defs>
-      <linearGradient id="scrim" x1="1" y1="0" x2="0" y2="0">
+      <linearGradient id="scrim" x1="${OG.textSide === "left" ? 0 : 1}" y1="0" x2="${OG.textSide === "left" ? 1 : 0}" y2="0">
         <stop offset="0" stop-color="#2E2118" stop-opacity=".82"/>
         <stop offset=".45" stop-color="#2E2118" stop-opacity=".55"/>
         <stop offset=".72" stop-color="#2E2118" stop-opacity="0"/>
@@ -324,7 +343,7 @@ async function ogImage() {
     </defs>
     <rect width="${W}" height="${H}" fill="url(#scrim)"/>
     <g fill="#FFFDF7">${glyphPaths.join("")}</g>
-    <rect x="${x}" y="${H - 62}" width="64" height="5" rx="2.5" fill="#E3A13A"/>
+    <rect x="${x}" y="${OG.textSide === "left" ? startY + lineHeight * (lines.length - 1) + 30 : H - 62}" width="64" height="5" rx="2.5" fill="#E3A13A"/>
   </svg>`;
 
   await sharp(photo)

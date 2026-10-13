@@ -23,6 +23,8 @@ export const images: Record<string, ImageMetadata> = Object.fromEntries(
 export const alt: Record<string, string> = {
   "hero-branon-mic": "Branon speaking into a microphone, one arm outstretched, in a decorated banquet hall.",
   "hero-branon-mic-tall": "Branon speaking into a microphone, one arm outstretched, in a decorated banquet hall.",
+  "hero-branon-engagement": "Branon smiling with a microphone in hand at a party, in a blue floral jacket over a white kurta.",
+  "hero-branon-engagement-tall": "Branon smiling with a microphone in hand at a party, in a blue floral jacket over a white kurta.",
   "birthday-fifty": "Branon hosting a 50th birthday, standing on the mic beside the smiling guest of honour.",
   "engage-phones": "Guests laughing and holding up their phones as Branon leads a game.",
   "games-slip": "Branon reads from a slip of paper while a group of guests in festive outfits laugh.",
@@ -96,18 +98,31 @@ export const nav = {
 
 /* -------------------------------------------------------------------- hero */
 
+/**
+ * Where the handwritten note sits, in % of the photo itself (not the card), so it stays
+ * beside Branon however the photo is cropped. x/y is the note's top-left corner.
+ */
+export type NotePlacement = {
+  x: string;
+  y: string;
+  arrow: "up-right" | "up-left" | "down-right" | "down-left";
+};
+
 export const hero = {
-  photo: { image: "hero-branon-mic", focal: "32% 20%" } as Photo,
-  // Optional narrower crop for phones (< 900px). Set to null to use `photo` everywhere.
-  photoMobile: { image: "hero-branon-mic-tall", focal: "50% 6%" } as Photo | null,
-  // Both crops are made in prepare-images.mjs so the ceiling never shows. The focal points
-  // put Branon in the left third on desktop and his face and mic in the top half on phones.
-  // Where the handwritten note sits over the photo, as % of the card.
+  // Both crops are made in prepare-images.mjs. Branon stands centre-right facing left,
+  // so the desktop headline goes on the left, opposite him.
+  // focal x only matters on narrow desktops (card squarer than the photo): 25% keeps Branon right of the headline.
+  photo: { image: "hero-branon-engagement", focal: "25% 20%" } as Photo,
+  // Optional narrower crop for phones and tablets (< 900px). Set to null to use `photo` everywhere.
+  photoMobile: { image: "hero-branon-engagement-tall", focal: "35% 10%" } as Photo | null,
+  // Which side of the desktop card the headline sits on. Put it opposite Branon.
+  textSide: "left" as "left" | "right",
+  // In front of his face (he's looking at it), arrow curving down to his forehead.
+  // desktop is measured on `photo`, mobile (phones and tablets) on `photoMobile`.
   notePosition: {
-    desktop: { left: "1.8%", top: "33%" },
-    tablet: { right: "16%", top: "9%" },
-    mobile: { right: "5%", top: "9.5%" },
-  },
+    desktop: { x: "47%", y: "21%", arrow: "down-right" },
+    mobile: { x: "16%", y: "12%", arrow: "down-right" },
+  } satisfies Record<"desktop" | "mobile", NotePlacement>,
   // TODO (optional): a hero video, e.g. "/video/hero.mp4" in public/. 1080p or lower, under 8 MB, 8–15 s.
   // The photo above is used as its poster, and as the fallback for reduced motion and Save-Data.
   heroVideo: null as string | null,
@@ -318,7 +333,8 @@ export const contactSection = {
   copied: "Copied",
   whatsappLabel: "Message on WhatsApp",
   front: {
-    photo: { image: "engagement-laugh", focal: "52% 30%", zoom: 1.1 } as Photo,
+    // The previous hero photo: his arm is already out, asking for a dance.
+    photo: { image: "hero-branon-mic-tall", focal: "50% 12%" } as Photo,
     caption: "save me a dance",
     tilt: -4,
   },
